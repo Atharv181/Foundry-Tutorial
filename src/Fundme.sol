@@ -26,7 +26,7 @@ pragma solidity ^0.8.18;
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import {PriceConverter} from "./PriceConverter.sol";
 
-error NotOwner();
+error Fundme__NotOwner();
 
 contract Fundme{
     using PriceConverter for uint256;
@@ -38,7 +38,7 @@ contract Fundme{
     address[] public funders;
 
     modifier onlyOwner {
-        if (msg.sender != i_owner) revert NotOwner();
+        if (msg.sender != i_owner) revert Fundme__NotOwner();
         _;
     }
 
@@ -47,7 +47,7 @@ contract Fundme{
     }
 
     function fund() public payable {
-        require(msg.value.getConversionRate() >= MIN_USD_VALUE, "Insufficient funds. Try to fund more than 5 ETH");
+        require(msg.value.getConversionRate() >= MIN_USD_VALUE, "Insufficient funds. Try to fund more than 5 USD");
         valueAddressFund[msg.sender] += msg.value;
         funders.push(msg.sender);
     }
