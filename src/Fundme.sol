@@ -37,24 +37,26 @@ contract Fundme{
     mapping(address => uint256) public valueAddressFund;
     address[] public funders;
 
+    AggregatorV3Interface private s_priceFeed;
+
     modifier onlyOwner {
         if (msg.sender != i_owner) revert Fundme__NotOwner();
         _;
     }
 
-    constructor(){
+    constructor(address priceFeed){
         i_owner = msg.sender;
+        s_priceFeed = AggregatorV3Interface(priceFeed);
     }
 
     function fund() public payable {
-        require(msg.value.getConversionRate() >= MIN_USD_VALUE, "Insufficient funds. Try to fund more than 5 USD");
+        require(msg.value.getConversionRate(s_priceFeed) >= MIN_USD_VALUE, "Insufficient funds. Try to fund more than 5 USD");
         valueAddressFund[msg.sender] += msg.value;
         funders.push(msg.sender);
     }
 
     function getVersion() public view returns (uint256){
-        AggregatorV3Interface priceFeed = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
-        return priceFeed.version();
+        return s_priceFeed.version();
     }
 
     function withdraw() public onlyOwner{
