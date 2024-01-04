@@ -12,8 +12,4 @@ docs/
 
 # Dotenv file
 .env
-<<<<<<< HEAD
-lib
-=======
 lib/
->>>>>>> 48ccb01883f7799b1ad185030de9008e833bbecd
