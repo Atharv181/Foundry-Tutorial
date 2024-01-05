@@ -76,4 +76,8 @@ contract Fundme{
     function getFunders(uint8 _index) public view returns (address){
         return s_funders[_index];
     }
+
+    function getOwner() public view returns (address){
+        return i_owner;
+    }
 }
