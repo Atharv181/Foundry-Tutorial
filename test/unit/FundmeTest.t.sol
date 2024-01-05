@@ -3,14 +3,16 @@
 pragma solidity ^0.8.18;
 
 import {Test} from "forge-std/Test.sol";
-import {Fundme} from "../src/Fundme.sol";
-import {DeployFundMe} from "../script/DeployFundMe.s.sol";
+import {Fundme} from "../../src/Fundme.sol";
+import {DeployFundMe} from "../../script/DeployFundMe.s.sol";
+import {HelperConfig} from "../../script/HelperConfig.s.sol";
 
 contract FundmeTest is Test {
 
     Fundme fundMe;
     address USER = makeAddr("ATHARV");
     uint256 public constant SEND_VALUE = 1 ether;
+    HelperConfig public helperConfig;
 
     modifier funded {
         vm.prank(USER);
@@ -20,7 +22,7 @@ contract FundmeTest is Test {
 
     function setUp() external {
         DeployFundMe deployFundMe = new DeployFundMe();
-        fundMe = deployFundMe.run();
+        (fundMe, helperConfig) = deployFundMe.run();
         vm.deal(USER, SEND_VALUE);
     }
 
