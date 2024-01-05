@@ -34,8 +34,8 @@ contract Fundme{
     address public immutable i_owner;
     uint256 public constant MIN_USD_VALUE = 5 ether; 
 
-    mapping(address => uint256) public valueAddressFund;
-    address[] public funders;
+    mapping(address => uint256) private s_valueAddressFund;
+    address[] private s_funders;
 
     AggregatorV3Interface private s_priceFeed;
 
@@ -50,9 +50,9 @@ contract Fundme{
     }
 
     function fund() public payable {
-        require(msg.value.getConversionRate(s_priceFeed) >= MIN_USD_VALUE, "Insufficient funds. Try to fund more than 5 USD");
-        valueAddressFund[msg.sender] += msg.value;
-        funders.push(msg.sender);
+        require(msg.value.getConversionRate(s_priceFeed) >= MIN_USD_VALUE, "Try to fund more than 5 USD");
+        s_valueAddressFund[msg.sender] += msg.value;
+        s_funders.push(msg.sender);
     }
 
     function getVersion() public view returns (uint256){
@@ -60,12 +60,20 @@ contract Fundme{
     }
 
     function withdraw() public onlyOwner{
-        for(uint8 i= 0; i<funders.length;i++){
-            valueAddressFund[funders[i]] = 0;
+        for(uint8 i= 0; i< s_funders.length;i++){
+            s_valueAddressFund[s_funders[i]] = 0;
         }
-        funders = new address[](0);
+        s_funders = new address[](0);
 
         (bool callSuccess, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess, "Call failed");
+    }
+
+    function getAmountToFundedAddress(address _funder) public view returns (uint256){
+        return s_valueAddressFund[_funder];
+    }
+
+    function getFunders(uint8 _index) public view returns (address){
+        return s_funders[_index];
     }
 }
