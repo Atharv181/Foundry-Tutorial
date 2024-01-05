@@ -26,9 +26,18 @@ pragma solidity ^0.8.18;
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import {PriceConverter} from "./PriceConverter.sol";
 
+    //////////////
+    /// Errors /// 
+    //////////////
+
 error Fundme__NotOwner();
 
 contract Fundme{
+
+    /////////////////
+    /// Variables /// 
+    /////////////////
+
     using PriceConverter for uint256;
     
     address public immutable i_owner;
@@ -39,24 +48,32 @@ contract Fundme{
 
     AggregatorV3Interface private s_priceFeed;
 
+    /////////////////
+    /// Modifiers /// 
+    /////////////////
+
     modifier onlyOwner {
         if (msg.sender != i_owner) revert Fundme__NotOwner();
         _;
     }
+
+    ///////////////////
+    /// constructor /// 
+    ///////////////////
 
     constructor(address priceFeed){
         i_owner = msg.sender;
         s_priceFeed = AggregatorV3Interface(priceFeed);
     }
 
+    /////////////////
+    /// Functions /// 
+    /////////////////
+
     function fund() public payable {
         require(msg.value.getConversionRate(s_priceFeed) >= MIN_USD_VALUE, "Try to fund more than 5 USD");
         s_valueAddressFund[msg.sender] += msg.value;
         s_funders.push(msg.sender);
-    }
-
-    function getVersion() public view returns (uint256){
-        return s_priceFeed.version();
     }
 
     function withdraw() public onlyOwner{
@@ -69,8 +86,16 @@ contract Fundme{
         require(callSuccess, "Call failed");
     }
 
+    ////////////////////////
+    /// Getter Functions /// 
+    ////////////////////////
+
     function getAmountToFundedAddress(address _funder) public view returns (uint256){
         return s_valueAddressFund[_funder];
+    }
+
+    function getVersion() public view returns (uint256){
+        return s_priceFeed.version();
     }
 
     function getFunders(uint8 _index) public view returns (address){
